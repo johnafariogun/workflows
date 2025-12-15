@@ -1,0 +1,40 @@
+name: Inventory Service CI/CD
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  # Stage 1: Matrix tests (reusable)
+  tests:
+    uses: your-org/platform-ci/.github/workflows/go-matrix-test.yml@v1
+    with:
+      working-directory: "."
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Stage 2: Docker build & push (reusable)
+  docker:
+    needs: tests
+    uses: your-org/platform-ci/.github/workflows/build-and-push-image.yml@v1
+    with:
+      image-name: ghcr.io/johnafariogun/inventory-service:${{ github.sha }}
+      working-directory: "."
+    secrets:
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Stage 3: Deploy to Kubernetes (reusable)
+  deploy-staging:
+    needs: docker
+    if: github.ref == 'refs/heads/main'
+    uses: your-org/platform-ci/.github/workflows/deploy-k8s.yml@v1
+    with:
+      image: ghcr.io/johnafariogun/inventory-service:${{ github.sha }}
+      namespace: inventory-staging
+      deployment: inventory-service
+    secrets:
+      KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_STAGING }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

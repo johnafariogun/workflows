@@ -1,0 +1,21 @@
+# Binaries
+inventory-service
+
+# Build output
+bin/
+
+# Vendor
+vendor/
+
+# Editor files
+*.swp
+*~
+
+# Git
+.git
+
+# CI
+.github
+
+# IDE
+.vscode
