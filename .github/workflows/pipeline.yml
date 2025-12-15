@@ -11,8 +11,8 @@ jobs:
     uses: johnafariogun/playbook/.github/workflows/go-matrix-test.yml@main
     with:
       working-directory: "."
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # secrets:
+    #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Stage 2: Docker build & push (reusable)
   docker:
@@ -24,7 +24,7 @@ jobs:
     secrets:
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Stage 3: Deploy to Kubernetes (reusable)
   deploy-staging:
@@ -37,4 +37,4 @@ jobs:
       deployment: inventory-service
     secrets:
       KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_STAGING }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
