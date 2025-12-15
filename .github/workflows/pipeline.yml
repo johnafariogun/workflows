@@ -8,7 +8,7 @@ on:
 jobs:
   # Stage 1: Matrix tests (reusable)
   tests:
-    uses: your-org/platform-ci/.github/workflows/go-matrix-test.yml@v1
+    uses: johnafariogun/playbook/.github/workflows/go-matrix-test.yml@v1
     with:
       working-directory: "."
     secrets:
@@ -17,7 +17,7 @@ jobs:
   # Stage 2: Docker build & push (reusable)
   docker:
     needs: tests
-    uses: your-org/platform-ci/.github/workflows/build-and-push-image.yml@v1
+    uses: johnafariogun/playbook/.github/workflows/build-and-push-image.yml@v1
     with:
       image-name: ghcr.io/johnafariogun/inventory-service:${{ github.sha }}
       working-directory: "."
@@ -30,7 +30,7 @@ jobs:
   deploy-staging:
     needs: docker
     if: github.ref == 'refs/heads/main'
-    uses: your-org/platform-ci/.github/workflows/deploy-k8s.yml@v1
+    uses: johnafariogun/playbook/.github/workflows/deploy-k8s.yml@v1
     with:
       image: ghcr.io/johnafariogun/inventory-service:${{ github.sha }}
       namespace: inventory-staging
