@@ -48,13 +48,13 @@ jobs:
         with:
           payload: |
             {
-              "text": "✅ Deployment Successful",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "✅ Inventory Service Deployed Successfully"
+                    "text": "✅ Deployment Successful",
+                    "emoji": true
                   }
                 },
                 {
@@ -62,36 +62,30 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Repository:*\n${{ github.repository }}"
-                    },
-                    {
-                      "type": "mrkdwn",
                       "text": "*Branch:*\n${{ github.ref_name }}"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Commit:*\n<${{ github.event.head_commit.url }}|${{ github.sha }}>"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Author:*\n${{ github.actor }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Environment:*\ninventory-staging"
+                      "text": "*Repository:*\n${{ github.repository }}"
                     },
                     {
                       "type": "mrkdwn",
                       "text": "*Image:*\nghcr.io/johnafariogun/inventory-service:${{ github.sha }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author:*\n${{ github.actor }}"
                     }
                   ]
                 },
                 {
                   "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Commit Message:*\n${{ github.event.head_commit.message }}"
-                  }
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit Message:*\n${{ github.event.head_commit.message }}"
+                    }
+                  ]
                 },
                 {
                   "type": "actions",
@@ -100,17 +94,24 @@ jobs:
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "View Workflow Run"
+                        "text": "View Commit",
+                        "emoji": true
                       },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                    },
+                      "url": "${{ github.event.head_commit.url }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
                     {
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "View Commit"
+                        "text": "View Workflow Run",
+                        "emoji": true
                       },
-                      "url": "${{ github.event.head_commit.url }}"
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     }
                   ]
                 }
@@ -127,17 +128,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Slack notification
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@v2.2.0
         with:
           payload: |
             {
-              "text": "❌ Deployment Failed",
               "blocks": [
                 {
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "❌ Inventory Service Deployment Failed"
+                    "text": "🏃‍♀️ Deployment Failed",
+                    "emoji": true
                   }
                 },
                 {
@@ -145,15 +146,15 @@ jobs:
                   "fields": [
                     {
                       "type": "mrkdwn",
-                      "text": "*Repository:*\n${{ github.repository }}"
-                    },
-                    {
-                      "type": "mrkdwn",
                       "text": "*Branch:*\n${{ github.ref_name }}"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Commit:*\n<${{ github.event.head_commit.url }}|${{ github.sha }}>"
+                      "text": "*Repository:*\n${{ github.repository }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Image:*\nghcr.io/johnafariogun/inventory-service:${{ github.sha }}"
                     },
                     {
                       "type": "mrkdwn",
@@ -163,10 +164,12 @@ jobs:
                 },
                 {
                   "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "⚠️ *Action Required:* Check the workflow logs for details"
-                  }
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit Message:*\n${{ github.event.head_commit.message }}"
+                    }
+                  ]
                 },
                 {
                   "type": "actions",
@@ -175,10 +178,24 @@ jobs:
                       "type": "button",
                       "text": {
                         "type": "plain_text",
-                        "text": "View Failed Workflow"
+                        "text": "View Commit",
+                        "emoji": true
                       },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                      "style": "danger"
+                      "url": "${{ github.event.head_commit.url }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Workflow Run",
+                        "emoji": true
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                     }
                   ]
                 }
