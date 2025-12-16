@@ -1,7 +1,5 @@
 name: Inventory Service CI/CD
 
-name: Inventory Service CI/CD
-
 on:
   push:
     branches: ["main"]
