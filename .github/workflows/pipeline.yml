@@ -38,39 +38,41 @@ jobs:
     secrets:
       KUBECONFIG_CONTENT: ${{ secrets.KUBECONFIG_STAGING }}
       # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  notify-success:
+  # Slack notifications for main branch (after deploy) — runs regardless of success/failure
+  notify-main:
     needs: deploy-staging
-    if: success() && github.ref == 'refs/heads/main'
+    if: ${{ always() && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Post a message in a channel
+      - name: Notify on success
+        if: ${{ success() }}
         uses: slackapi/slack-github-action@v2.1.1
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
           payload: |
-            text: "*GitHub Action build result*: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-            blocks:
-              - type: "section"
-                text:
-                  type: "mrkdwn"
-                  text: "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+            text: "✅ Deployment successful: ${{ github.repository }}\nImage: ghcr.io/johnafariogun/inventory-service:${{ github.sha }}\nBranch: ${{ github.ref_name }}"
 
-  # Slack notification on failure
-  notify-failure:
-    needs: deploy-staging
-    if: failure() && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Post a message in a channel
+      - name: Notify on failure
+        if: ${{ failure() }}
         uses: slackapi/slack-github-action@v2.1.1
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
           payload: |
-            text: "*GitHub Action build result*: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
-            blocks:
-              - type: "section"
-                text:
-                  type: "mrkdwn"
-                  text: "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+            text: "❌ Deployment failed: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nRun: ${{ github.run_number }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+  # Slack notifications for non-main refs (e.g. PRs) — run after tests/docker
+  notify-other:
+    needs: [tests, docker]
+    if: ${{ always() && github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify on failure
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "❌ CI failed for ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nRun: ${{ github.run_number }}\nSee: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
